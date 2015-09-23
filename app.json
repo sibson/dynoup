@@ -1,0 +1,27 @@
+{
+    "name": "dynoup",
+    "description": "App to monitor and automatically scale Heroku Dynos",
+    "website": "https://github.com/sibson/dynoup",
+    "repository": "https://github.com/sibson/dynoup",
+    "keywords": [
+        "heroku",
+        "scale",
+        "automatic"
+    ],
+    "addons": [
+        "papertrail",
+        "rollbar"
+    ],
+    "env": {
+        "SECRET_KEY": {
+            "description": "The username/repository to post new issues too"
+        },
+        "HEROKU_OAUTH_ID": {
+            "description": "User to login to Github with"
+        },
+        "HEROKU_OAUTH_SECRET": {
+            "description": "Password to login with, may need an application token if using 2FA"
+        }
+    },
+    "generator": "https://www.expeditedssl.com/heroku-button-maker"
+}
