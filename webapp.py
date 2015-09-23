@@ -4,16 +4,24 @@ import rollbar
 import rollbar.contrib.flask
 import structlog
 
-from flask import Flask, got_request_exception
+from flask import got_request_exception
+from flask_restful import Api
+
 import heroku_bouncer
 
 
 from app import app
+from apiv1.apps import AppList, App
 
 logger = structlog.get_logger()
 
 
+# XXX todo set oauth callback=xyz to create user and get apps
 app.wsgi_app = heroku_bouncer.bouncer(app.wsgi_app, scope='write')
+
+api = Api(app)
+api.add_resource(AppList, '/apiv1/apps')
+api.add_resource(App, '/apiv1/apps/<app_name>')
 
 
 @app.before_first_request
