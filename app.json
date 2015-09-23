@@ -14,14 +14,17 @@
     ],
     "env": {
         "SECRET_KEY": {
-            "description": "The username/repository to post new issues too"
+            "description": "Secret Key used for Flask cryptography"
         },
         "HEROKU_OAUTH_ID": {
             "description": "User to login to Github with"
         },
         "HEROKU_OAUTH_SECRET": {
             "description": "Password to login with, may need an application token if using 2FA"
-        }
+        },
+        "FERNET_SECRET": {
+            "description": "Secret key used with Fernet encryption"
+        },
     },
     "generator": "https://www.expeditedssl.com/heroku-button-maker"
 }

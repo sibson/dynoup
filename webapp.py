@@ -12,12 +12,12 @@ import heroku_bouncer
 
 from app import app
 from apiv1.apps import AppList, App
+from scaler.utils import oauth_callback
 
 logger = structlog.get_logger()
 
 
-# XXX todo set oauth callback=xyz to create user and get apps
-app.wsgi_app = heroku_bouncer.bouncer(app.wsgi_app, scope='write')
+app.wsgi_app = heroku_bouncer.bouncer(app.wsgi_app, scope='write', auth_callback=oauth_callback)
 
 api = Api(app)
 api.add_resource(AppList, '/apiv1/apps')
