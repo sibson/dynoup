@@ -24,7 +24,7 @@
         },
         "FERNET_SECRET": {
             "description": "Secret key used with Fernet encryption"
-        },
+        }
     },
     "generator": "https://www.expeditedssl.com/heroku-button-maker"
 }
