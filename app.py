@@ -14,3 +14,4 @@ db = SQLAlchemy(app)
 
 
 import utils.requestid  # noqa
+import scaler.views  # noqa
