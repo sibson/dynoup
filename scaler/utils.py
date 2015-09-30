@@ -5,21 +5,34 @@ import heroku3
 import structlog
 
 from app import app, db
-from scaler.models import User
+from scaler.models import User, App
 
 
 logger = structlog.get_logger()
 
 
 def oauth_callback(token):
-    user = User.query.filter_by(email=token['username']).first()
+    """ Called after successful OAuth with Heroku
 
+    We need to capture the Heroku access_token for the User
+    """
+
+    user = User.query.filter_by(email=token['username']).first()
     if not user:
         user = User(id=token['user_id'], email=token['username'])
 
     fernet = Fernet(app.config['FERNET_SECRET'])
     user.htoken = fernet.encrypt(token.access_token.encode('utf-8')).decode('utf-8')
     db.session.add(user)
+
+    # link all apps to the user
+    heroku = get_heroku_client(token.access_token)
+    for happ in heroku.apps():
+        dbapp = App.query.filter_by(id=happ.id, name=happ.name).first()
+        if dbapp:
+            dbapp.users.append(user)
+            db.session.add(dbapp)
+
     db.session.commit()
 
     return True
@@ -40,10 +53,10 @@ def get_heroku_client_for_session():
     return get_heroku_client(get_heroku_token_for_session())
 
 
-def get_valid_heroku_client_for(app):
-    for user in app.users:
+def get_heroku_client_for_app(dbapp):
+    fernet = Fernet(app.config['FERNET_SECRET'])
+    for user in dbapp.users.all():
         try:
-            fernet = Fernet(app.config['FERNET_SECRET'])
             token = fernet.decrypt(user.htoken.encode('utf-8')).decode('utf-8')
         except (InvalidToken, IndexError):
             logger.exception('invalid token')
@@ -51,7 +64,7 @@ def get_valid_heroku_client_for(app):
 
         client = get_heroku_client(token)
         try:
-            client.apps()
+            client.apps()[dbapp.name]
         except Exception:
             # XXX narrow the execption
             logger.exception('failed to access Heroku')
@@ -59,4 +72,4 @@ def get_valid_heroku_client_for(app):
 
         return client
 
-    raise Exception('unable to access heroku')
+    raise Exception('no users with access to app')

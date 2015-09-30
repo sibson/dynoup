@@ -1,6 +1,8 @@
+from uuid import uuid4
+
 from app import db
 
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSON
 
 
 class User(db.Model):
@@ -20,11 +22,13 @@ appusers = db.Table(
 class App(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True)
     name = db.Column(db.String(128), unique=True)
-#    checks = db.relationship('Check', backref=db.backref('app'), lazy='dynamic')
-    users = db.relationship('User', secondary=appusers, backref=db.backref('apps'), lazy='dynamic')
+    users = db.relationship('User', secondary=appusers, backref=db.backref('app'), lazy='dynamic')
+    checks = db.relationship('Check', backref=db.backref('app'), lazy='dynamic')
 
 
-#class Check(db.Model):
-#    id = db.Column(UUID(as_uuid=True), primary_key=True)
-#    app = db.Column('app_id', UUID(as_uuid=True), db.ForeignKey('app.id'))
-#    url = db.Column(db.String(256))
+class Check(db.Model):
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    app_id = db.Column(UUID(as_uuid=True), db.ForeignKey('app.id'))
+    url = db.Column(db.String(256))
+    dynotype = db.Column(db.String(64))
+    params = db.Column(JSON())

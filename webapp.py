@@ -11,7 +11,7 @@ import heroku_bouncer
 
 
 from app import app
-from apiv1.apps import AppList, App
+from apiv1.apps import AppList, App, Check
 from scaler.utils import oauth_callback
 
 logger = structlog.get_logger()
@@ -21,7 +21,8 @@ app.wsgi_app = heroku_bouncer.bouncer(app.wsgi_app, scope='write', auth_callback
 
 api = Api(app)
 api.add_resource(AppList, '/apiv1/apps')
-api.add_resource(App, '/apiv1/apps/<app_name>')
+api.add_resource(App, '/apiv1/apps/<app_id>')
+api.add_resource(Check, '/apiv1/apps/<app_id>/<dynotype>')
 
 
 @app.before_first_request
@@ -41,13 +42,10 @@ def init_rollbar():
 
 
 if __name__ == '__main__':
-    from structlog.stdlib import LoggerFactory
-    from structlog.threadlocal import wrap_dict
     import logging
 
-    structlog.configure(
-        context_class=wrap_dict(dict),
-        logger_factory=LoggerFactory(),
-    )
     logging.basicConfig(level=logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
     app.run(debug=True)
