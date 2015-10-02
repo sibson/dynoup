@@ -30,7 +30,7 @@ class App(Resource):
 
         return {
             'name': app.name,
-            'id': app.id,
+            'id': app_id,
             'checks': checks,
         }
 
@@ -85,3 +85,14 @@ class Check(Resource):
             abort(404, message="Check {}:{} doesn't exist".format(app_id, dynotype))
 
         return check
+
+    def delete(self, app_id, dynotype):
+        # XXX permissions
+        check = models.Check.query.filter_by(app_id=app_id, dynotype=dynotype).first()
+        if not check:
+            abort(404, message="Check {}:{} doesn't exist".format(app_id, dynotype))
+
+        db.session.delete(check)
+        db.session.commit()
+
+        return {}, 204
