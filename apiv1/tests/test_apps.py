@@ -8,7 +8,7 @@ from apiv1.urls import api  # noqa
 from scaler import models
 
 
-class AppTestCase(DynoUPTestCase):
+class TestAppAPI(DynoUPTestCase):
 
     @responses.activate
     def test_get_list(self):
@@ -57,4 +57,3 @@ class AppTestCase(DynoUPTestCase):
             'id': dbapp.id,
             'checks': {check.dynotype: str(check.id)},
         })
-
