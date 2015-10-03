@@ -19,7 +19,7 @@ class App(Resource):
         if app:
             checks = {c.dynotype: str(c.id) for c in app.checks}
         else:
-            checks = []
+            checks = {}
 
             heroku = get_heroku_client_for_session()
             apps = heroku.apps()
