@@ -9,12 +9,13 @@
         "automatic"
     ],
     "addons": [
+        "heroku-postgres",
         "papertrail",
         "rollbar"
     ],
     "env": {
         "SECRET_KEY": {
-            "description": "Secret Key used for Flask cryptography"
+            "description": "Secret Key used for Flask cryptography (openssl rand -base64 32)"
         },
         "HEROKU_OAUTH_ID": {
             "description": "User to login to Github with"
