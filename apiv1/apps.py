@@ -1,5 +1,5 @@
 from flask import request
-from flask_restful import Resource, abort, marshal_with, fields
+from flask_restful import Resource, abort, marshal_with, fields, reqparse
 
 from app import db
 from scaler.utils import get_heroku_client_for_session
@@ -40,11 +40,16 @@ check_fields = {
     'app_id': fields.String,
     'url': fields.String,
     'dynotype': fields.String,
-    'params': fields.String,
+    'params': fields.Raw,
 }
 
 
 class Check(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('url', type=str, required=True,
+                                   help='missing URL to check', location='json')
+
     @marshal_with(check_fields)
     def put(self, app_id, dynotype):
         heroku = get_heroku_client_for_session()
@@ -68,10 +73,11 @@ class Check(Resource):
         user = models.User.query.filter_by(email=email).first()
         dbapp.users.append(user)
 
-        url = request.json['url']
-        check = models.Check(app_id=app.id, dynotype=dynotype, url=url)
+        args = self.reqparse.parse_args()
 
-        # XXX need to add check to session?
+        check = models.Check(app_id=app.id, dynotype=dynotype, url=args['url'])
+
+        # XXX need to add app to session?
         db.session.add(check)
         db.session.commit()
 

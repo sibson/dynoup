@@ -1,3 +1,4 @@
+from uuid import uuid4
 import os
 import logging
 from unittest import TestCase
@@ -6,6 +7,7 @@ import json
 import responses
 
 from app import app, db
+from scaler import models
 
 
 class HerokuBouncerTestDoubleMiddleWare(object):
@@ -28,20 +30,22 @@ class HerokuBouncerTestDoubleMiddleWare(object):
 class DynoUPTestCase(TestCase):
 
     def setUp(self):
-        app.config['FERNET_SECRET'] = 'test'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///dynoup-test'
-        app.config['TESTING'] = True
-
         logging.basicConfig()
         requests_log = logging.getLogger("requests.packages.urllib3")
         requests_log.setLevel(logging.DEBUG)
         requests_log.propagate = True
 
+        app.config['FERNET_SECRET'] = 'test'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///dynoup-test'
+        app.config['TESTING'] = True
         app.wsgi_app = HerokuBouncerTestDoubleMiddleWare(app.wsgi_app)
 
         self.client = app.test_client()
 
         db.create_all()
+
+        db.session.add(models.User(id=uuid4(), email='testuser@example.com', htoken='testtoken'))
+        db.session.commit()
 
         super(DynoUPTestCase, self).setUp()
 

@@ -57,3 +57,82 @@ class TestAppAPI(DynoUPTestCase):
             'id': dbapp.id,
             'checks': {check.dynotype: str(check.id)},
         })
+
+
+class CheckTestCase(DynoUPTestCase):
+
+    def setUp(self):
+        super(CheckTestCase, self).setUp()
+        self.app = models.App(id='01234567-89ab-cdef-0123-456789abcdef', name='example')
+        db.session.add(self.app)
+        db.session.commit()
+
+    @responses.activate
+    def test_put_check_app_not_in_db(self):
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps')
+        self.add_heroku_response(responses.GET, '/apps/example/formation')
+
+        db.session.delete(self.app)
+        db.session.commit()
+
+        data = {
+            'url': 'http://example.com'
+        }
+        response = self.client.put('apiv1/apps/{}/web'.format(str(self.app.id)),
+                                   content_type='application/json', data=json.dumps(data))
+
+        self.assertEquals(response.status_code, 201)
+
+        check = models.Check.query.first()
+
+        self.assertEquals(check.url, data['url'])
+        self.assertEquals(check.app.name, 'example')
+        self.assertEquals(check.app.users.first().email, 'testuser@example.com')
+
+    @responses.activate
+    def test_put_check_app_in_db(self):
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps')
+        self.add_heroku_response(responses.GET, '/apps/example/formation')
+
+        data = {
+            'url': 'http://example.com'
+        }
+        response = self.client.put('apiv1/apps/{}/web'.format(str(self.app.id)),
+                                   content_type='application/json', data=json.dumps(data))
+
+        self.assertEquals(response.status_code, 201)
+
+        check = models.Check.query.first()
+
+        self.assertEquals(check.url, data['url'])
+        self.assertEquals(check.app.name, 'example')
+        self.assertEquals(check.app.users.first().email, 'testuser@example.com')
+
+    def test_delete_check(self):
+        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
+        db.session.add(check)
+        db.session.commit()
+
+        response = self.client.delete('/apiv1/apps/{}/web'.format(str(self.app.id)))
+
+        self.assertEquals(response.status_code, 204)
+        self.assertIsNone(models.Check.query.first())
+
+    def test_get_check(self):
+        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
+        db.session.add(check)
+        db.session.commit()
+
+        response = self.client.get('/apiv1/apps/{}/web'.format(str(self.app.id)))
+
+        check = models.Check.query.first()
+
+        self.assertEquals(json.loads(response.data), {
+            u'id': unicode(check.id),
+            u'app_id': unicode(check.app_id),
+            u'url': check.url,
+            u'dynotype': check.dynotype,
+            u'params': {},
+        })

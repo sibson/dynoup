@@ -31,4 +31,4 @@ class Check(db.Model):
     app_id = db.Column(UUID(as_uuid=True), db.ForeignKey('app.id'))
     url = db.Column(db.String(256))
     dynotype = db.Column(db.String(64))
-    params = db.Column(JSON())
+    params = db.Column(JSON(), default={})
