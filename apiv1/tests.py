@@ -37,23 +37,3 @@ class AppTestCase(DynoUPTestCase):
             'id': app['id'],
             'checks': [],
         })
-
-    def test_get_app_with_checks(self):
-        assert False
-
-
-class CheckTestCase(DynoUPTestCase):
-
-    @responses.activate
-    def test_put_check_app_not_in_db(self):
-        assert False
-
-    @responses.activate
-    def test_put_check_app_in_db(self):
-        assert False
-
-    def test_delete_check(self):
-        assert False
-
-    def test_get_check(self):
-        assert False
