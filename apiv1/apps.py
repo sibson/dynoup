@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource, abort, marshal_with, fields, reqparse
 
-from app import db
+from dynoup import db
 from scaler.utils import get_heroku_client_for_session
 from scaler import models
 

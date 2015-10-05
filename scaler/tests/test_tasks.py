@@ -1,7 +1,7 @@
 from mock import patch
 import responses
 
-from app import db
+from dynoup import db
 from scaler import tasks, models
 
 from basecase import DynoUPTestCase

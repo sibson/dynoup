@@ -4,7 +4,7 @@ import logging
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 
-from app import app, db
+from dynoup import app, db
 from scaler import models, tasks
 
 logging.basicConfig(level=logging.DEBUG)

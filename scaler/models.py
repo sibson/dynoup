@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from app import db
+from dynoup import db
 
 from sqlalchemy.dialects.postgresql import UUID, JSON
 

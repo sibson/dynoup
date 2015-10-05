@@ -2,7 +2,7 @@ from flask import request
 
 from structlog import get_logger
 
-from app import app
+from dynoup import app
 
 
 logger = get_logger()

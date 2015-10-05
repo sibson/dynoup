@@ -9,7 +9,7 @@ from flask import got_request_exception
 import heroku_bouncer
 
 
-from app import app
+from dynoup import app
 from scaler.utils import oauth_callback
 
 

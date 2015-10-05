@@ -19,6 +19,8 @@ app.config['ROLLBAR_ACCESS_TOKEN'] = os.environ.get('ROLLBAR_ACCESS_TOKEN')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///dynoup')
 app.config['FERNET_SECRET'] = os.environ.get('FERNET_SECRET')
 
+print app.config
+
 db = SQLAlchemy(app)
 
 

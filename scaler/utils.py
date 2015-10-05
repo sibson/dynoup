@@ -4,7 +4,7 @@ from flask import request
 import heroku3
 import structlog
 
-from app import app, db
+from dynoup import app, db
 from scaler.models import User, App
 
 

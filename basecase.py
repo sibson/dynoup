@@ -6,7 +6,7 @@ import json
 
 import responses
 
-from app import app, db
+from dynoup import app, db
 from scaler import models
 
 

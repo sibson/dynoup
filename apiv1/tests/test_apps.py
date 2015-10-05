@@ -3,7 +3,7 @@ import json
 from basecase import DynoUPTestCase
 import responses
 
-from app import db
+from dynoup import db
 from apiv1.urls import api  # noqa
 from scaler import models
 
