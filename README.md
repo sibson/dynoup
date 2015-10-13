@@ -21,4 +21,4 @@ You can test the server locally by starting it with
 
 The worker can be run with
 
-    rqworker
+    ./bin/worker.sh
