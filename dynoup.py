@@ -14,7 +14,7 @@ structlog.configure(
     logger_factory=LoggerFactory(),
 )
 app = Flask(__name__)
-app.config.from_object('config')
+app.config.from_object('settings')
 
 
 db = SQLAlchemy(app)
