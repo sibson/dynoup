@@ -6,10 +6,12 @@
     "keywords": [
         "heroku",
         "scale",
+        "dyno",
         "automatic"
     ],
     "addons": [
         "heroku-postgres",
+        "heroku-redis",
         "papertrail",
         "rollbar"
     ],

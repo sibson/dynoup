@@ -38,8 +38,8 @@ celery = make_celery(app)
 
 
 # add blueprints
-import apiv1.urls  # noqa
-app.register_blueprint(apiv1.urls.bp, url_prefix='/apiv1')
+from apiv1.views import api_bp  # noqa
+app.register_blueprint(api_bp, url_prefix='/apiv1')
 
 
 # imports to allow tasks and signals to be registered

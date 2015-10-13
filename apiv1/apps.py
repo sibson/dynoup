@@ -2,6 +2,7 @@ from flask import request
 from flask_restful import Resource, abort, marshal_with, fields, reqparse
 
 from dynoup import db
+from apiv1.views import api
 from scaler.utils import get_heroku_client_for_session
 from scaler import models
 
@@ -10,6 +11,7 @@ class AppList(Resource):
     def get(self):
         heroku = get_heroku_client_for_session()
         return {a.name: a.id for a in heroku.apps()}
+api.add_resource(AppList, '/apps')
 
 
 class App(Resource):
@@ -33,6 +35,7 @@ class App(Resource):
             'id': app_id,
             'checks': checks,
         }
+api.add_resource(App, '/apps/<app_id>')
 
 
 check_fields = {
@@ -102,3 +105,4 @@ class Check(Resource):
         db.session.commit()
 
         return {}, 204
+api.add_resource(Check, '/apps/<app_id>/<dynotype>')
