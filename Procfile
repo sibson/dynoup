@@ -1,2 +1,2 @@
 web: gunicorn webapp:app --log-file=-
-worker: python rqworker.py
+worker: celery -A dynoup.celery --beat worker

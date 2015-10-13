@@ -1,6 +1,10 @@
 # local ignores
 .env
 
+# app ignores
+celerybeat-schedule.db
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

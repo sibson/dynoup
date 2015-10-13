@@ -3,12 +3,22 @@ import math
 import requests
 from structlog import get_logger
 
+from dynoup import celery
+
 from scaler.utils import get_heroku_client_for_app
+from scaler.models import Check
 
 log = get_logger()
 
 
-def run_check(check):
+@celery.task()
+def run_http_checks():
+    for check in Check.query.all():
+        run_http_check.delay(check)
+
+
+@celery.task()
+def run_http_check(check):
     response = requests.get(check.url)
     if response.ok:  # maybe scale down?
         log.info('all good', check=check)
@@ -22,6 +32,7 @@ def run_check(check):
     log.error('unexpected response', response=response)
 
 
+@celery.task()
 def scale_up(check):
     heroku = get_heroku_client_for_app(check.app)
     app = heroku.apps()[str(check.app.id)]
