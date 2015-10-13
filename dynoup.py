@@ -5,6 +5,7 @@ from celery import Celery
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.admin import Admin
 
 import structlog
 from structlog.stdlib import LoggerFactory
@@ -33,8 +34,8 @@ app.config['CELERYBEAT_SCHEDULE'] = {
     }
 }
 
-
 db = SQLAlchemy(app)
+admin = Admin(app, name='DynoUp', template_mode='bootstrap3')
 
 
 def make_celery(app):
@@ -50,9 +51,12 @@ def make_celery(app):
                 return TaskBase.__call__(self, *args, **kwargs)
     celery.Task = ContextTask
     return celery
-
-
 celery = make_celery(app)
+
+
+# add blueprints
+import apiv1.urls  # noqa
+app.register_blueprint(apiv1.urls.bp, url_prefix='/apiv1')
 
 
 # imports to allow tasks and signals to be registered
