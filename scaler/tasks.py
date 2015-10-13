@@ -14,11 +14,16 @@ log = get_logger()
 @celery.task()
 def run_http_checks():
     for check in Check.query.all():
-        run_http_check.delay(check)
+        run_http_check.delay(check.id)
 
 
 @celery.task()
-def run_http_check(check):
+def run_http_check(check_id):
+    check = Check.query.filter_by(id=check_id).first()
+    if not check:
+        log.warning('unknown check', id=check_id)
+        return
+
     response = requests.get(check.url)
     if response.ok:  # maybe scale down?
         log.info('all good', check=check)
@@ -33,7 +38,12 @@ def run_http_check(check):
 
 
 @celery.task()
-def scale_up(check):
+def scale_up(check_id):
+    check = Check.query.filter_by(id=check_id).first()
+    if not check:
+        log.warning('unknown check', id=check_id)
+        return
+
     heroku = get_heroku_client_for_app(check.app)
     app = heroku.apps()[str(check.app.id)]
     formation = app.process_formation()

@@ -18,5 +18,5 @@ class TestScalerTasks(DynoUPTestCase):
     @patch('scaler.tasks.scale_up')
     def test_check_needs_scale_up(self, scale_up):
         responses.add(responses.GET, self.check.url, status=503)
-        tasks.run_check(self.check)
+        tasks.run_http_check(self.check.id)
         self.assertTrue(scale_up.call_count)
