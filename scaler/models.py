@@ -10,6 +10,8 @@ class User(db.Model):
     email = db.Column(db.String(120), nullable=False)
     htoken = db.Column(db.String(512), nullable=False)
 
+    def __repr__(self):
+        return '<User {} ({})>'.format(self.email, self.id)
 
 # track many-to-many relationship between apps and users
 appusers = db.Table(
@@ -25,6 +27,9 @@ class App(db.Model):
     users = db.relationship('User', secondary=appusers, backref=db.backref('app'), lazy='dynamic')
     checks = db.relationship('Check', backref=db.backref('app'), lazy='dynamic')
 
+    def __repr__(self):
+        return '<App {} ({})>'.format(self.name, self.id)
+
 
 class Check(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -32,3 +37,6 @@ class Check(db.Model):
     url = db.Column(db.String(256))
     dynotype = db.Column(db.String(64))
     params = db.Column(JSON(), default={})
+
+    def __repr__(self):
+        return '<Check {}/{} {}>'.format(self.app.name, self.dynotype, self.url)
