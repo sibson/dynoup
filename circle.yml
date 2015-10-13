@@ -1,7 +1,7 @@
 ---
 database:
     override:
-        - psql -U ubuntu --command="CREATE DATABASE dynoup-test"
+        - psql -U ubuntu --command='CREATE DATABASE "dynoup-test"'
 
 dependencies:
   override:
