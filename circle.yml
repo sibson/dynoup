@@ -1,4 +1,8 @@
 ---
+database:
+    override:
+        - psql -U ubuntu --command="CREATE DATABASE dynoup-test"
+
 dependencies:
   override:
     - pip install -r requirements.dev
