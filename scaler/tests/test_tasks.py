@@ -1,5 +1,6 @@
 from mock import patch
 import responses
+from uuid import uuid4
 
 from dynoup import db
 from scaler import tasks, models
@@ -10,7 +11,8 @@ from basecase import DynoUPTestCase
 class TestScalerTasks(DynoUPTestCase):
     def setUp(self):
         super(TestScalerTasks, self).setUp()
-        self.check = models.Check(url='http://example.com')
+        self.app = models.App(id=uuid4(), name='test-app')
+        self.check = models.Check(app=self.app, url='http://example.com')
         db.session.add(self.check)
         db.session.commit()
 

@@ -53,16 +53,24 @@ def get_heroku_client_for_session():
     return get_heroku_client(get_heroku_token_for_session())
 
 
-def get_heroku_client_for_app(dbapp):
+def get_heroku_client_for_user(user):
     fernet = Fernet(app.config['FERNET_SECRET'])
+    try:
+        token = fernet.decrypt(user.htoken.encode('utf-8')).decode('utf-8')
+    except (InvalidToken, IndexError):
+        logger.exception('invalid token')
+        raise
+
+    return get_heroku_client(token)
+
+
+def get_heroku_client_for_app(dbapp):
     for user in dbapp.users.all():
         try:
-            token = fernet.decrypt(user.htoken.encode('utf-8')).decode('utf-8')
+            client = get_heroku_client_for_user(user)
         except (InvalidToken, IndexError):
-            logger.exception('invalid token')
             continue
 
-        client = get_heroku_client(token)
         try:
             client.apps()[dbapp.name]
         except Exception:

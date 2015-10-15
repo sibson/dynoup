@@ -6,6 +6,7 @@ from flask.ext.migrate import Migrate, MigrateCommand
 
 from dynoup import app, db
 from scaler import models, tasks
+from scaler.commands.refresh_apps import RefreshApps
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -17,6 +18,7 @@ manager = Manager(app)
 
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
+manager.add_command('refresh-apps', RefreshApps())
 
 
 @manager.shell
