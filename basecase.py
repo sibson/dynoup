@@ -64,3 +64,17 @@ class DynoUPTestCase(TestCase):
         responses.add(verb, 'https://api.heroku.com' + path, json=data, **kwargs)
 
         return data
+
+    def create_app(self):
+        app = models.App(id='01234567-89ab-cdef-0123-456789abcdef', name='example')
+        db.session.add(app)
+        db.session.commit()
+
+        return app
+
+    def create_check(self, app=None):
+        check = models.Check(app=app or self.app, url='http://example.com', dynotype='web')
+        db.session.add(check)
+        db.session.commit()
+
+        return check

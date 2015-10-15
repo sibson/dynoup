@@ -77,19 +77,9 @@ class CheckTestCase(DynoUPTestCase):
 
     def setUp(self):
         super(CheckTestCase, self).setUp()
-        self.app = models.App(id='01234567-89ab-cdef-0123-456789abcdef', name='example')
-        db.session.add(self.app)
-        db.session.commit()
-
+        self.app = self.create_app()
         with app.test_request_context():
             self.url = api.url_for(Check, app_id=self.app.id, dynotype='web')
-
-    def create_check(self):
-        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
-        db.session.add(check)
-        db.session.commit()
-
-        return check
 
     @responses.activate
     def test_put_check_app_not_in_db(self):
