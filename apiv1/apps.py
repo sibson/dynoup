@@ -57,6 +57,8 @@ def get_app_or_404(app_id):
 
 
 class Check(Resource):
+    decorators = []  # XXX add permissions
+
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument('url', type=str, required=True,
@@ -70,10 +72,7 @@ class Check(Resource):
         except KeyError:
             abort(404, message="Dynotype {} doesn't exist".format(dynotype))
 
-        dbapp = models.App.query.filter_by(id=app_id).first()
-        if not dbapp:
-            dbapp = models.App(id=app_id, name=app.name)
-            db.session.add(dbapp)
+        dbapp = models.App.get_or_create(app_id, app.name)
 
         # middleware?
         email = request.environ['REMOTE_USER']

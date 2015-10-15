@@ -30,6 +30,18 @@ class App(db.Model):
     def __repr__(self):
         return '<App {} ({})>'.format(self.name, self.id)
 
+    @classmethod
+    def get_or_create(cls, app_id, name=None):
+        instance = cls.query.filter_by(id=app_id).first()
+        if instance:
+            return instance, False
+
+        instance = cls(id=app_id, name=name)
+        db.session.add(instance)
+        db.session.commit()
+
+        return instance, True
+
 
 class Check(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)

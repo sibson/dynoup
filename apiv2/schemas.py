@@ -5,12 +5,11 @@ from scaler.models import Check, App
 class CheckSchema(ma.Schema):
     id = ma.UUID(dump_only=True)
     app_id = ma.UUID(dump_only=True)
-    name = ma.Str(dump_only=True)
     dynotype = ma.Str(dump_only=True)
 
     class Meta:
         model = Check
-        fields = ('url', 'params')
+        fields = ('id', 'app_id', 'url', 'params', 'dynotype',)
 
 
 class AppSchema(ma.ModelSchema):
