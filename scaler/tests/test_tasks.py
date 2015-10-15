@@ -20,6 +20,12 @@ class TestScalerTasks(DynoUPTestCase):
         db.session.add(self.check)
         db.session.commit()
 
+    @patch('scaler.tasks.run_http_check')
+    def test_run_http_checks(self, run_http_check):
+        tasks.run_http_checks()
+        self.assertEquals(run_http_check.delay.call_count, 1)
+        run_http_check.delay.assert_called_with(str(self.check.id))
+
     @responses.activate
     @patch('scaler.tasks.scale_up')
     def test_check_needs_scale_up(self, scale_up):

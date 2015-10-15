@@ -3,14 +3,13 @@ import math
 import requests
 from structlog import get_logger
 
-from dynoup import app, make_celery
+from dynoup import celery
 
 from scaler.utils import get_heroku_client_for_app
 from scaler.models import Check
 
 
 log = get_logger()
-celery = make_celery(app)
 
 
 @celery.task()

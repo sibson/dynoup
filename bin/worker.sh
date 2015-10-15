@@ -1,1 +1,1 @@
-celery -A dynoup.celery --beat --loglevel=debug worker $@
+celery -A worker.celery --beat --loglevel=debug worker $@

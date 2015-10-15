@@ -1,10 +1,10 @@
 from cryptography.fernet import Fernet, InvalidToken
 
-from flask import request
+from flask import request, current_app
 import heroku3
 import structlog
 
-from dynoup import app, db
+from extensions import db
 from scaler.models import User, App
 
 
@@ -12,7 +12,7 @@ logger = structlog.get_logger()
 
 
 def encrypt_access_token(access_token):
-    fernet = Fernet(app.config['FERNET_SECRET'])
+    fernet = Fernet(current_app.config['FERNET_SECRET'])
     return fernet.encrypt(access_token.encode('utf-8')).decode('utf-8')
 
 
@@ -57,7 +57,7 @@ def get_heroku_client_for_session():
 
 
 def get_heroku_client_for_user(user):
-    fernet = Fernet(app.config['FERNET_SECRET'])
+    fernet = Fernet(current_app.config['FERNET_SECRET'])
     try:
         token = fernet.decrypt(user.htoken.encode('utf-8')).decode('utf-8')
     except (InvalidToken, IndexError):

@@ -6,7 +6,8 @@ import json
 
 import responses
 
-from dynoup import app, db
+from dynoup import create_app
+from extensions import db
 from scaler import models
 
 
@@ -35,6 +36,7 @@ class DynoUPTestCase(TestCase):
         requests_log.setLevel(logging.DEBUG)
         requests_log.propagate = True
 
+        app = create_app()
         app.config['FERNET_SECRET'] = 'ovoQLxYEfMnFks8ab7dpHB9RITEaDMaZutxlkHM1TVs='
         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///dynoup-test'
         app.config['TESTING'] = True
