@@ -35,7 +35,7 @@ class DynoUPTestCase(TestCase):
         requests_log.setLevel(logging.DEBUG)
         requests_log.propagate = True
 
-        app.config['FERNET_SECRET'] = 'test'
+        app.config['FERNET_SECRET'] = 'ovoQLxYEfMnFks8ab7dpHB9RITEaDMaZutxlkHM1TVs='
         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///dynoup-test'
         app.config['TESTING'] = True
         app.wsgi_app = HerokuBouncerTestDoubleMiddleWare(app.wsgi_app)
@@ -56,6 +56,8 @@ class DynoUPTestCase(TestCase):
     def add_heroku_response(self, verb, path, filename=None, **kwargs):
         if filename is None:
             filename = 'examples/{}{}.json'.format(verb, path)
+        elif not filename.endswith('.json'):
+            filename = filename + '.json'
 
         fh = open(os.path.join('fixtures', filename))
         data = json.loads(fh.read())

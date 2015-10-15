@@ -57,6 +57,8 @@ def scale_up(check_id):
         quantity = formation[dynotype].quantity
         quantity = math.ceil(1.20 * quantity)
 
-    app.process_formation()[dynotype].scale(quantity)
+    app.process_formation()[dynotype].scale(quantity=quantity)
 
     log.info('scaled {}:{}={}'.format(app.name, dynotype, quantity))
+
+    return quantity

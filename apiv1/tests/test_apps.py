@@ -9,7 +9,7 @@ from apiv1.apps import AppList, App, Check
 from scaler import models
 
 
-class TestAppAPI(DynoUPTestCase):
+class TestAppListAPI(DynoUPTestCase):
 
     @responses.activate
     def test_get_list(self):
@@ -27,6 +27,8 @@ class TestAppAPI(DynoUPTestCase):
             happs[0]['name']:  happs[0]['id'],
         })
 
+
+class TestAppAPI(DynoUPTestCase):
     @responses.activate
     def test_get_app_no_model(self):
         self.add_heroku_response(responses.GET, '/account/rate-limits')
@@ -133,7 +135,7 @@ class CheckTestCase(DynoUPTestCase):
     @responses.activate
     def test_delete_permissions(self):
         self.add_heroku_response(responses.GET, '/account/rate-limits')
-        self.add_heroku_response(responses.GET, '/apps', 'apps-empty.json')
+        self.add_heroku_response(responses.GET, '/apps', 'apps/empty.json')
 
         self.create_check()
 
@@ -155,7 +157,7 @@ class CheckTestCase(DynoUPTestCase):
     @responses.activate
     def test_get_permissions(self):
         self.add_heroku_response(responses.GET, '/account/rate-limits')
-        self.add_heroku_response(responses.GET, '/apps', 'apps-empty.json')
+        self.add_heroku_response(responses.GET, '/apps', 'apps/empty.json')
 
         self.create_check()
 

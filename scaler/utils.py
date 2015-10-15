@@ -11,6 +11,11 @@ from scaler.models import User, App
 logger = structlog.get_logger()
 
 
+def encrypt_access_token(access_token):
+    fernet = Fernet(app.config['FERNET_SECRET'])
+    return fernet.encrypt(access_token.encode('utf-8')).decode('utf-8')
+
+
 def oauth_callback(token):
     """ Called after successful OAuth with Heroku
 
@@ -20,9 +25,7 @@ def oauth_callback(token):
     user = User.query.filter_by(email=token['username']).first()
     if not user:
         user = User(id=token['user_id'], email=token['username'])
-
-    fernet = Fernet(app.config['FERNET_SECRET'])
-    user.htoken = fernet.encrypt(token.access_token.encode('utf-8')).decode('utf-8')
+    user.htoken = encrypt_access_token(token.access_token)
     db.session.add(user)
 
     # link all apps to the user
@@ -35,7 +38,7 @@ def oauth_callback(token):
 
     db.session.commit()
 
-    return True
+    return user
 
 
 def get_heroku_token_for_session():
