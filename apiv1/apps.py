@@ -16,19 +16,18 @@ api.add_resource(AppList, '/apps')
 
 class App(Resource):
     def get(self, app_id):
-        app = models.App.query.filter_by(id=app_id).first()
 
+        heroku = get_heroku_client_for_session()
+        apps = heroku.apps()  # getto permissions check
+        if app_id not in apps:
+            abort(404, message="App {} doesn't exist".format(app_id))
+
+        app = models.App.query.filter_by(id=app_id).first()
         if app:
             checks = {c.dynotype: str(c.id) for c in app.checks}
         else:
-            checks = {}
-
-            heroku = get_heroku_client_for_session()
-            apps = heroku.apps()
-            if app_id not in apps:
-                abort(404, message="App {} doesn't exist".format(app_id))
-
             app = apps[app_id]
+            checks = {}
 
         return {
             'name': app.name,
@@ -47,6 +46,16 @@ check_fields = {
 }
 
 
+def get_app_or_404(app_id):
+    heroku = get_heroku_client_for_session()
+    try:
+        app = heroku.apps()[app_id]
+    except KeyError:
+        abort(404, message="App {} doesn't exist".format(app_id))
+
+    return app
+
+
 class Check(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -55,12 +64,7 @@ class Check(Resource):
 
     @marshal_with(check_fields)
     def put(self, app_id, dynotype):
-        heroku = get_heroku_client_for_session()
-        try:
-            app = heroku.apps()[app_id]
-        except KeyError:
-            abort(404, message="App {} doesn't exist".format(app_id))
-
+        app = get_app_or_404(app_id)
         try:
             app.process_formation()[dynotype]
         except KeyError:
@@ -88,7 +92,7 @@ class Check(Resource):
 
     @marshal_with(check_fields)
     def get(self, app_id, dynotype):
-        # XXX permissions
+        get_app_or_404(app_id)  # getto permission check
         check = models.Check.query.filter_by(app_id=app_id, dynotype=dynotype).first()
         if not check:
             abort(404, message="Check {}:{} doesn't exist".format(app_id, dynotype))
@@ -96,7 +100,7 @@ class Check(Resource):
         return check
 
     def delete(self, app_id, dynotype):
-        # XXX permissions
+        get_app_or_404(app_id)  # getto permission check
         check = models.Check.query.filter_by(app_id=app_id, dynotype=dynotype).first()
         if not check:
             abort(404, message="Check {}:{} doesn't exist".format(app_id, dynotype))

@@ -55,9 +55,9 @@ class DynoUPTestCase(TestCase):
 
     def add_heroku_response(self, verb, path, filename=None, **kwargs):
         if filename is None:
-            filename = '{}{}.json'.format(verb, path)
+            filename = 'examples/{}{}.json'.format(verb, path)
 
-        fh = open(os.path.join('fixtures/examples/', filename))
+        fh = open(os.path.join('fixtures', filename))
         data = json.loads(fh.read())
         responses.add(verb, 'https://api.heroku.com' + path, json=data, **kwargs)
 

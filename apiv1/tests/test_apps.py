@@ -82,6 +82,13 @@ class CheckTestCase(DynoUPTestCase):
         with app.test_request_context():
             self.url = api.url_for(Check, app_id=self.app.id, dynotype='web')
 
+    def create_check(self):
+        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
+        db.session.add(check)
+        db.session.commit()
+
+        return check
+
     @responses.activate
     def test_put_check_app_not_in_db(self):
         self.add_heroku_response(responses.GET, '/account/rate-limits')
@@ -123,24 +130,46 @@ class CheckTestCase(DynoUPTestCase):
         self.assertEquals(check.app.name, 'example')
         self.assertEquals(check.app.users.first().email, 'testuser@example.com')
 
+    @responses.activate
+    def test_delete_permissions(self):
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps', 'apps-empty.json')
+
+        self.create_check()
+
+        response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 404)
+
+    @responses.activate
     def test_delete_check(self):
-        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
-        db.session.add(check)
-        db.session.commit()
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps')
+
+        self.create_check()
 
         response = self.client.delete(self.url)
 
         self.assertEquals(response.status_code, 204)
         self.assertIsNone(models.Check.query.first())
 
-    def test_get_check(self):
-        check = models.Check(app=self.app, url='http://example.com', dynotype='web')
-        db.session.add(check)
-        db.session.commit()
+    @responses.activate
+    def test_get_permissions(self):
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps', 'apps-empty.json')
+
+        self.create_check()
 
         response = self.client.get(self.url)
+        self.assertEquals(response.status_code, 404)
 
-        check = models.Check.query.first()
+    @responses.activate
+    def test_get_check(self):
+        self.add_heroku_response(responses.GET, '/account/rate-limits')
+        self.add_heroku_response(responses.GET, '/apps')
+
+        check = self.create_check()
+
+        response = self.client.get(self.url)
 
         self.assertEquals(json.loads(response.data), {
             u'id': unicode(check.id),
