@@ -4,7 +4,7 @@ from flask_restful import Resource, abort, marshal_with, fields, reqparse
 from dynoup import db
 from apiv1.views import api
 from scaler.utils import get_heroku_client_for_session
-from scaler import models
+from scaler import models, actions
 
 
 class AppList(Resource):
@@ -72,20 +72,13 @@ class Check(Resource):
         except KeyError:
             abort(404, message="Dynotype {} doesn't exist".format(dynotype))
 
-        dbapp = models.App.get_or_create(app_id, app.name)
-
-        # middleware?
-        email = request.environ['REMOTE_USER']
-        user = models.User.query.filter_by(email=email).first()
-        dbapp.users.append(user)
-
         args = self.reqparse.parse_args()
 
-        check = models.Check(app_id=app.id, dynotype=dynotype, url=args['url'])
+        # XXX middleware
+        email = request.environ['REMOTE_USER']
+        user = models.User.query.filter_by(email=email).first()
 
-        # XXX need to add app to session?
-        db.session.add(check)
-        db.session.commit()
+        check = actions.CreateCheck(user, app_id, app.name, dynotype, args['url'])()
 
         return check, 201
 

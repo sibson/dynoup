@@ -9,7 +9,7 @@ class CheckSchema(ma.Schema):
 
     class Meta:
         model = Check
-        fields = ('id', 'app_id', 'url', 'params', 'dynotype',)
+        fields = ('id', 'app_id', 'url', 'params', 'dynotype')
 
 
 class AppSchema(ma.ModelSchema):

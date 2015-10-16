@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask.views import MethodView
 
 from dynoup import db
-from scaler import models, utils
+from scaler import models, utils, actions
 from apiv2.schemas import AppSchema, CheckSchema
 from apiv2.errors import NotFoundError
 
@@ -68,19 +68,16 @@ class CheckAPI(MethodView):
 
     def put(self, app_id, dynotype):
         app = self.get_app(app_id)  # getto permissions check
-        dbapp, _ = models.App.get_or_create(app_id, app.name)
-        # XXX middleware? flask-login?
-        email = request.environ['REMOTE_USER']
-        user = models.User.query.filter_by(email=email).first()
-        dbapp.users.append(user)
 
         data, errors = CheckSchema().load(request.get_json())
         if errors:
             return jsonify(errors), 422
 
-        check = models.Check(app_id=app_id, dynotype=dynotype, url=data['url'])
-        db.session.add(check)
-        db.session.commit()
+        # XXX middleware? flask-login?
+        email = request.environ['REMOTE_USER']
+        user = models.User.query.filter_by(email=email).first()
+
+        check = actions.CreateCheck(user, app_id, app.name, dynotype, data['url'])()
 
         return self.jsonify(check), 201
 
