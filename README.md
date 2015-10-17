@@ -7,8 +7,9 @@
 
 # Usage
 
-DynoUp will run checks against a configured URL, which should be some endpoint in your application.
-It should return either a 200 OK if everything is OK or 503 Server Unavailable to indicate dynoup should scale up the process type.
+DynoUp will run checks against a target application to detect if it needs more dynos.  
+
+A check is an HTTP URL in the target application that returns either a 200 OK if everything is OK or 503 Server Unavailable, in which case dynoup will scale up specified dyno type.
 
 # Development
 
