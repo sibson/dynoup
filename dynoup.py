@@ -48,6 +48,7 @@ app.register_blueprint(api_bp, url_prefix='/apiv1')
 app.register_blueprint(apiv2)
 
 
-# imports to allow tasks and signals to be registered
+# imports to allow tasks and signals/hooks to be registered
 import utils.requestid  # noqa
+import utils.user  # noqa
 import scaler.tasks  # noqa

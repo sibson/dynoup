@@ -1,9 +1,10 @@
 import json
+from mock import patch, ANY
 
 from flask import url_for
-
-from basecase import DynoUPTestCase
 import responses
+
+from basecase import DynoUPTestCase, user_set
 
 from dynoup import app, db
 from scaler import models
@@ -77,49 +78,40 @@ class TestCheckAPI(DynoUPTestCase):
     def setUp(self):
         super(TestCheckAPI, self).setUp()
         self.app = self.create_app()
+        self.user = self.create_user()
         with app.test_request_context():
             self.url = url_for('apiv2.check', app_id=self.app.id, dynotype='web')
 
     @responses.activate
-    def test_put_check_app_not_in_db(self):
+    @patch('scaler.actions.CreateCheck', auto_spec=True)
+    def test_put_check(self, CreateCheck):
         self.add_heroku_response(responses.GET, '/account/rate-limits')
         self.add_heroku_response(responses.GET, '/apps')
         self.add_heroku_response(responses.GET, '/apps/example/formation')
 
-        db.session.delete(self.app)
-        db.session.commit()
+        CreateCheck.run.return_value = self.create_check()
 
         data = {
             'url': 'http://example.com'
         }
-        response = self.client.put(self.url, content_type='application/json', data=json.dumps(data))
-
+        with user_set(app, self.user):
+            response = self.client.put(self.url, content_type='application/json', data=json.dumps(data))
         self.assertEquals(response.status_code, 201)
+        self.assertTrue(CreateCheck.run.call_count, 1)
 
-        check = models.Check.query.first()
+        # XXX kinda sucks
+        db.session.add(self.app)
+        db.session.add(self.user)
 
-        self.assertEquals(check.url, data['url'])
-        self.assertEquals(check.app.name, 'example')
-        self.assertEquals(check.app.users.first().email, 'testuser@example.com')
+        # can't cmpare user objects from different sessions
+        CreateCheck.run.assert_called_with(ANY, str(self.app.id), self.app.name, 'web', data['url'])
+        args, _ = CreateCheck.run.call_args
+        self.assertEquals(args[0].id, self.user.id)
 
-    @responses.activate
-    def test_put_check_app_in_db(self):
-        self.add_heroku_response(responses.GET, '/account/rate-limits')
-        self.add_heroku_response(responses.GET, '/apps')
-        self.add_heroku_response(responses.GET, '/apps/example/formation')
-
-        data = {
-            'url': 'http://example.com'
-        }
-        response = self.client.put(self.url, content_type='application/json', data=json.dumps(data))
-
-        self.assertEquals(response.status_code, 201)
-
-        check = models.Check.query.first()
-
-        self.assertEquals(check.url, data['url'])
-        self.assertEquals(check.app.name, 'example')
-        self.assertEquals(check.app.users.first().email, 'testuser@example.com')
+        check = json.loads(response.data)
+        self.assertEquals(check['url'], data['url'])
+        self.assertEquals(check['app_id'], str(self.app.id))
+        self.assertEquals(check['dynotype'], 'web')
 
     @responses.activate
     def test_delete_permissions(self):

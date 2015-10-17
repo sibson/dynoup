@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, g
 from flask_restful import Resource, abort, marshal_with, fields, reqparse
 
 from dynoup import db
@@ -74,11 +74,7 @@ class Check(Resource):
 
         args = self.reqparse.parse_args()
 
-        # XXX middleware
-        email = request.environ['REMOTE_USER']
-        user = models.User.query.filter_by(email=email).first()
-
-        check = actions.CreateCheck(user, app_id, app.name, dynotype, args['url'])()
+        check = actions.CreateCheck.run(g.user, app_id, app.name, dynotype, args['url'])
 
         return check, 201
 

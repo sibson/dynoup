@@ -1,8 +1,10 @@
-from uuid import uuid4
+from contextlib import contextmanager
+import json
 import os
 import logging
 from unittest import TestCase
-import json
+
+from flask import appcontext_pushed, g
 
 import responses
 
@@ -44,9 +46,6 @@ class DynoUPTestCase(TestCase):
 
         db.create_all()
 
-        db.session.add(models.User(id=uuid4(), email='testuser@example.com', htoken='testtoken'))
-        db.session.commit()
-
         super(DynoUPTestCase, self).setUp()
 
     def tearDown(self):
@@ -65,6 +64,13 @@ class DynoUPTestCase(TestCase):
 
         return data
 
+    def create_user(self):
+        user = models.User(id='01234567-89ab-cdef-0123-456789abcdef', email='testuser@example.com', htoken='testtoken')
+        db.session.add(user)
+        db.session.commit()
+
+        return user
+
     def create_app(self):
         app = models.App(id='01234567-89ab-cdef-0123-456789abcdef', name='example')
         db.session.add(app)
@@ -78,3 +84,11 @@ class DynoUPTestCase(TestCase):
         db.session.commit()
 
         return check
+
+
+@contextmanager
+def user_set(app, user):
+    def handler(sender, **kwargs):
+        g.user = user
+    with appcontext_pushed.connected_to(handler, app):
+        yield

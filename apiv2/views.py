@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, g
 from flask.views import MethodView
 
 from dynoup import db
@@ -73,11 +73,7 @@ class CheckAPI(MethodView):
         if errors:
             return jsonify(errors), 422
 
-        # XXX middleware? flask-login?
-        email = request.environ['REMOTE_USER']
-        user = models.User.query.filter_by(email=email).first()
-
-        check = actions.CreateCheck(user, app_id, app.name, dynotype, data['url'])()
+        check = actions.CreateCheck.run(g.user, app_id, app.name, dynotype, data['url'])
 
         return self.jsonify(check), 201
 
