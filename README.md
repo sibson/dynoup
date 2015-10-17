@@ -2,7 +2,7 @@
 
 # Deploy and Setup
 
-    1. [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+    [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
     1. heroku plugins:install https://github.com/heroku/heroku-oauth
     1. heroku clients:create dynoup https://your-app-name.herokuapp.com/auth/heroku/callback/
 
