@@ -3,9 +3,9 @@
 # Deploy and Setup
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-  
-  1. heroku plugins:install https://github.com/heroku/heroku-oauth
-  1. heroku clients:create dynoup https://your-app-name.herokuapp.com/auth/heroku/callback/
+
+    1. heroku plugins:install https://github.com/heroku/heroku-oauth
+    1. heroku clients:create dynoup https://your-app-name.herokuapp.com/auth/heroku/callback/
 
 # Usage
 
@@ -17,9 +17,9 @@ A check is an HTTP URL in the target application that returns either a ```200 OK
 
 You can test the server locally by starting it with
 
-  1. heroku plugins:install https://github.com/heroku/heroku-oauth
-  1. heroku clients:create dynoup http://localhost:5000/auth/heroku/callback/
-  1. python webapp.py
+    1. heroku plugins:install https://github.com/heroku/heroku-oauth
+    1. heroku clients:create dynoup http://localhost:5000/auth/heroku/callback/
+    1. python webapp.py
 
 The worker can be run with
 
